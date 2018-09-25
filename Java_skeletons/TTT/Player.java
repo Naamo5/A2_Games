@@ -52,7 +52,7 @@ public class Player {
       gameState.findPossibleMoves(nextStates);
       int player = gameState.getNextPlayer();
 
-      if (nextStates.size() == 0 || depth == 0) return evalSimple(gameState);
+      if (nextStates.size() == 0 || depth == 0) return evalNbrMark(gameState);
 
       else{
         float v;
@@ -98,7 +98,7 @@ public class Player {
 
       float v;
 
-      if (nextStates.size() == 0 || depth == 0) v = evalSimple(gameState);
+      if (nextStates.size() == 0 || depth == 0) v = evalNbrMark(gameState);
 
       else if (player == playerMax) {
           v = -Float.MAX_VALUE;
@@ -131,7 +131,6 @@ public class Player {
      *  EVALSIMPLE
      *
      */
-
     private float evalSimple(GameState gameState){
       int player = gameState.getNextPlayer();
       float eval = 0;
@@ -160,6 +159,47 @@ public class Player {
         int pos2 = gameState.BOARD_SIZE-1-pos1;
         if (gameState.at(pos1,pos2) == player) eval++;
       }
+
+      return eval;
+    }
+
+    private float evalNbrMark(GameState gameState){
+      int player = gameState.getNextPlayer();
+      float eval = 0;
+      float counter = 0;
+
+      //Sum the marks of the player in the rows
+      for (int row = 0; row < gameState.BOARD_SIZE; row++){
+        for (int col = 0; col < gameState.BOARD_SIZE; col++){
+          counter = 0;
+            if (gameState.at(row, col) == player) counter++;
+        }
+        eval = eval + counter*10;
+      }
+
+      //Sum the marks of the player in the Columns
+      for (int col = 0; col < gameState.BOARD_SIZE; col++){
+        for (int row = 0; row < gameState.BOARD_SIZE; row++){
+          counter = 0;
+          if (gameState.at(row, col) == player) counter++;
+        }
+        eval = eval + counter*10;
+      }
+
+      //Sum the marks of the player in the diagonal
+      for (int pos = 0; pos < gameState.BOARD_SIZE; pos++){
+        counter = 0;
+        if (gameState.at(pos, pos) == player) counter++;
+      }
+      eval = eval + counter*10;
+
+      //Sum the marks of the player in the anti-diagonal
+      for (int pos1 = 0; pos1 < gameState.BOARD_SIZE; pos1++){
+        int pos2 = gameState.BOARD_SIZE-1-pos1;
+        counter = 0;
+        if (gameState.at(pos1,pos2) == player) counter++;
+      }
+      eval = eval + counter*10;
 
       return eval;
     }

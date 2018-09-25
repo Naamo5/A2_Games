@@ -122,7 +122,6 @@ public class Player {
             if (beta <= alpha) break;
           }
         }
-
       return v;
     }
 

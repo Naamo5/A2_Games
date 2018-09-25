@@ -11,7 +11,7 @@ public class Player {
      * @return the next state the board is in after our move
      */
 
-    private static final int depthMax = 4;
+    private static final int depthMax = 3;
     private int playerMax;
     private GameState nextMove;
 
@@ -52,7 +52,7 @@ public class Player {
       gameState.findPossibleMoves(nextStates);
       int player = gameState.getNextPlayer();
 
-      if (nextStates.size() == 0 || depth == 0) return evalNbrMark(gameState);
+      if (nextStates.size() == 0 || depth == 0) return evalNbrMarkDef(gameState);
 
       else{
         float v;
@@ -98,7 +98,10 @@ public class Player {
 
       float v;
 
-      if (nextStates.size() == 0 || depth == 0) v = evalNbrMark(gameState);
+      if (nextStates.size() == 0 || depth == 0){
+        v = evalNbrMarkDef(gameState);
+        //System.err.println(v);
+      }
 
       else if (player == playerMax) {
           v = -Float.MAX_VALUE;
@@ -132,7 +135,7 @@ public class Player {
      *
      */
     private float evalSimple(GameState gameState){
-      int player = gameState.getNextPlayer();
+      int player = playerMax;
       float eval = 0;
 
       //Sum the marks of the player in the rows
@@ -164,43 +167,96 @@ public class Player {
     }
 
     private float evalNbrMark(GameState gameState){
-      int player = gameState.getNextPlayer();
-      float eval = 0;
-      float counter = 0;
+      int player = playerMax;
+      double eval = 0;
+      int counter = 0;
 
       //Sum the marks of the player in the rows
       for (int row = 0; row < gameState.BOARD_SIZE; row++){
+        counter = 0;
         for (int col = 0; col < gameState.BOARD_SIZE; col++){
-          counter = 0;
             if (gameState.at(row, col) == player) counter++;
         }
-        eval = eval + counter*10;
+        eval = eval + Math.pow(10,counter);
       }
 
       //Sum the marks of the player in the Columns
       for (int col = 0; col < gameState.BOARD_SIZE; col++){
+        counter = 0;
         for (int row = 0; row < gameState.BOARD_SIZE; row++){
-          counter = 0;
           if (gameState.at(row, col) == player) counter++;
         }
-        eval = eval + counter*10;
+        eval = eval + Math.pow(10,counter);
       }
 
       //Sum the marks of the player in the diagonal
+      counter = 0;
       for (int pos = 0; pos < gameState.BOARD_SIZE; pos++){
-        counter = 0;
         if (gameState.at(pos, pos) == player) counter++;
       }
-      eval = eval + counter*10;
+      eval = eval + Math.pow(10,counter);
 
       //Sum the marks of the player in the anti-diagonal
+      counter = 0;
       for (int pos1 = 0; pos1 < gameState.BOARD_SIZE; pos1++){
         int pos2 = gameState.BOARD_SIZE-1-pos1;
-        counter = 0;
         if (gameState.at(pos1,pos2) == player) counter++;
       }
-      eval = eval + counter*10;
+      eval = eval + Math.pow(10,counter);
 
-      return eval;
+      float evalOut = (float)eval;
+      return evalOut;
     }
+
+    private float evalNbrMarkDef(GameState gameState){
+      int player = playerMax;
+      double eval = 0;
+      int counter = 0;
+      int holes = 1;
+
+      //Sum the marks of the player in the rows
+      for (int row = 0; row < gameState.BOARD_SIZE; row++){
+        counter = 0;
+        holes = 1;
+        for (int col = 0; col < gameState.BOARD_SIZE; col++){
+          if (gameState.at(row, col) != player) holes = 0;
+          if (gameState.at(row, col) == player) counter++;
+        }
+        eval = eval + Math.pow(10,counter)*holes;
+      }
+
+      //Sum the marks of the player in the Columns
+      for (int col = 0; col < gameState.BOARD_SIZE; col++){
+        counter = 0;
+        holes = 1;
+        for (int row = 0; row < gameState.BOARD_SIZE; row++){
+          if (gameState.at(row, col) != player) holes = 0;
+          if (gameState.at(row, col) == player) counter++;
+        }
+        eval = eval + Math.pow(10,counter)*holes;
+      }
+
+      //Sum the marks of the player in the diagonal
+      counter = 0;
+      holes = 1;
+      for (int pos = 0; pos < gameState.BOARD_SIZE; pos++){
+        if (gameState.at(pos, pos) != player) holes = 0;
+        if (gameState.at(pos, pos) == player) counter++;
+      }
+      eval = eval + Math.pow(10,counter)*holes;
+
+      //Sum the marks of the player in the anti-diagonal
+      counter = 0;
+      holes = 1;
+      for (int pos1 = 0; pos1 < gameState.BOARD_SIZE; pos1++){
+        int pos2 = gameState.BOARD_SIZE-1-pos1;
+        if (gameState.at(pos1, pos2) != player) holes = 0;
+        if (gameState.at(pos1, pos2) == player) counter++;
+      }
+      eval = eval + Math.pow(10,counter)*holes;
+
+      float evalOut = (float)eval;
+      return evalOut;
+    }
+
 }

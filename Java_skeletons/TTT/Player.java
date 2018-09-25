@@ -11,7 +11,7 @@ public class Player {
      * @return the next state the board is in after our move
      */
 
-    private static final int depthMax = 5;
+    private static final int depthMax = 4;
     private int playerMax;
     private GameState nextMove;
 
@@ -31,8 +31,8 @@ public class Player {
          */
 
         playerMax = gameState.getNextPlayer();
-        //minimax(gameState,0);
-        alphabeta(gameState, 0, -Float.MAX_VALUE, Float.MAX_VALUE);
+        //minimax(gameState,depthMax);
+        alphabeta(gameState, depthMax, -Float.MAX_VALUE, Float.MAX_VALUE);
 
         return nextMove;
 
@@ -41,13 +41,10 @@ public class Player {
     }
 
 
-
-
     /**
      *  MINIMAX
      *
      */
-
     private float minimax(GameState gameState, int depth){
       // state : the current state we are analyzing
       // returns a heuristic value that approximates a utility function of the state
@@ -55,7 +52,7 @@ public class Player {
       gameState.findPossibleMoves(nextStates);
       int player = gameState.getNextPlayer();
 
-      if (nextStates.size() == 0 || depth == depthMax) return evalSimple(gameState);
+      if (nextStates.size() == 0 || depth == 0) return evalSimple(gameState);
 
       else{
         float v;
@@ -63,11 +60,11 @@ public class Player {
           float bestPossible = -Float.MAX_VALUE;
 
           //Let's initialize nextMove as the first child of the tree
-          if (depth==0) nextMove = nextStates.elementAt(0);
+          if (depth==depthMax) nextMove = nextStates.elementAt(0);
 
           for (int i = 0; i < nextStates.size(); i++){
-            v = minimax(nextStates.elementAt(i), depth+1);
-            if (depth == 0 && v>bestPossible) nextMove = nextStates.elementAt(i);
+            v = minimax(nextStates.elementAt(i), depth-1);
+            if (depth == depthMax && v>bestPossible) nextMove = nextStates.elementAt(i);
             bestPossible = Math.max(bestPossible, v);
           }
           return bestPossible;
@@ -76,7 +73,7 @@ public class Player {
         else{
           float bestPossible = Float.MAX_VALUE;
           for (int i = 0; i < nextStates.size(); i++){
-            v = minimax(nextStates.elementAt(i), depth+1);
+            v = minimax(nextStates.elementAt(i), depth-1);
             bestPossible  = Math.min(bestPossible, v);
           }
           return bestPossible;
@@ -89,8 +86,6 @@ public class Player {
      *  ALPHABETA
      *
      */
-
-
     private float alphabeta(GameState gameState, int depth, float alpha, float beta){
       // state : the current state we are analyzing
       // alpha : the current best value achievable by A
@@ -103,23 +98,17 @@ public class Player {
 
       float v;
 
-      if (nextStates.size() == 0 || depth == 0){
-        v = evalSimple(gameState);
-      }
+      if (nextStates.size() == 0 || depth == 0) v = evalSimple(gameState);
 
-      System.err.println("Hellooooo " + player + " " + playerMax + " " + nextStates.size() + " " + depth + " " + evalSimple(gameState));
-
-      else {
-        if (player == playerMax) {
+      else if (player == playerMax) {
           v = -Float.MAX_VALUE;
 
           //Let's initialize nextMove as the first child of the tree
-          if (depth==0) nextMove = nextStates.elementAt(0);
+          if (depth==depthMax) nextMove = nextStates.elementAt(0);
 
           for (int i = 0; i < nextStates.size(); i++){
-            System.err.println("Hello je suis en profondeur " + depth + " et en iteration " + i);
             v = Math.max(v, alphabeta(nextStates.elementAt(i), depth-1, alpha, beta));
-            if (depth == 0 && v>alpha) nextMove = nextStates.elementAt(i);
+            if (depth == depthMax && v>alpha) nextMove = nextStates.elementAt(i);
             alpha = Math.max(alpha,v);
             if (beta <= alpha) break;
           }
@@ -133,8 +122,6 @@ public class Player {
             if (beta <= alpha) break;
           }
         }
-      }
-
       return v;
     }
 
